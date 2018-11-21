@@ -1,22 +1,26 @@
+from urllib import parse
 import psycopg2
 from psycopg2 import Error
-from urllib import parse
 
-class db_operations:
+class DatabaseOps:
+    """Contains methods to create a db connection and create some tables"""
 
-    def __init__(self):
+    def connect_to_db(self):
+        """Creates a connection to the database"""
         try:
             #using parameters to create a connection to the database
             url = parse.urlparse('postgresql://postgres:th3k1ng@localhost:5432/postgres')
-            db = "dbname=%s user=%s password=%s host=%s " % (url.path[1:], url.username, url.password, url.hostname)
+            db = "dbname={} user={} password={} host={} ".format(url.path[1:], \
+            url.username, url.password, url.hostname)
             self.conn = psycopg2.connect(db)
             self.cur = self.conn.cursor()
             self.conn.autocommit = True
             print("Success connected to the database - ")
-        except (Exception, psycopg2.DatabaseError) as error:
+        except (Exception, psycopg2.Error) as error:
             print("Error connecting to the database", error)
 
     def create_table(self):
+        """Creates the users and parcels tables"""
         queries = (
             '''
             CREATE TABLE IF NOT EXISTS users (
@@ -34,7 +38,7 @@ class db_operations:
             status VARCHAR(100) DEFAULT'pending',
             current_location VARCHAR(100) NOT NULL,
             user_id INT NOT NULL,
-            FOREIGN KEY(user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE 
+            FOREIGN KEY(user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
             )'''
         )
         for sql in queries:
