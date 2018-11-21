@@ -20,7 +20,7 @@ def registers_user():
             return jsonify({"message":"You've entered an empty value ",
                             "status":"failure",
                             "Empty":"{}".format(key)})
-        if 'email' not in key and 'password' not in key:
+        if 'email' != key and 'password' != key:
             return jsonify({"message":"You've messed up the input",
                             "status":"failure",
                             "Error":"{}".format(key)})
@@ -31,10 +31,10 @@ def registers_user():
         return jsonify({"message":"Email already exists",
                         "status":"failure",
                         "data":"{}".format(returned['email'])})
-
-    #create an account
-    new_user.register_user(returned['email'], returned['password'])
-    return jsonify({"message":"account created succesfully", "status":"success"}), 201
+    else:
+        #create an account
+        new_user.register_user(returned['email'], returned['password'])
+        return jsonify({"message":"account created succesfully", "status":"success"}), 201
 
 @apiv2.route('auth/login', methods=['POST'])
 def login_users():
@@ -54,7 +54,7 @@ def login_users():
             return jsonify({"message":"You've entered an empty value ",
                             "status":"failure",
                             "Empty":"{}".format(key)})
-        if 'email' not in key and 'password' not in key:
+        if key != 'email' and key != 'password':
             return jsonify({"message":"You've messed up the input",
                             "status":"failure",
                             "Error":"{}".format(key)})
