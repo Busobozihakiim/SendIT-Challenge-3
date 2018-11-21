@@ -36,7 +36,7 @@ class DatabaseOps:
             pick_up VARCHAR(100) NOT NULL,
             drop_off VARCHAR(200) NOT NULL,
             status VARCHAR(100) DEFAULT'pending',
-            current_location VARCHAR(100) NOT NULL,
+            current_location VARCHAR(100) DEFAULT'in transit',
             user_id INT NOT NULL,
             FOREIGN KEY(user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
             )'''
@@ -44,3 +44,11 @@ class DatabaseOps:
         for sql in queries:
             self.cur.execute(sql)
         print("Table created")
+
+    def create_parcel(self, name, description, pick_up, drop_off, user_id):
+        query = ('''INSERT INTO parcel_deliveries (name, description, pick_up, drop_off, user_id)
+                    VALUES ('{}','{}','{}','{}','{}')'''.format(name, description, pick_up,
+                                                                drop_off, user_id))
+        self.cur.execute(query)
+        return True
+        
