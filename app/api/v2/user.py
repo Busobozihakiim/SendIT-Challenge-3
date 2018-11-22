@@ -1,4 +1,5 @@
-from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
+import re
+from flask_jwt_extended import create_access_token
 from flask import jsonify, request
 from app.api import apiv2
 from app.api.auth import UserCredentials
@@ -17,10 +18,13 @@ def registers_user():
             return jsonify({"message":"You've entered an empty value ",
                             "status":"failure",
                             "Empty":"{}".format(key)})
-        if 'email' != key and 'password' != key:
+        if key != 'email' and key != 'password':
             return jsonify({"message":"You've messed up the input",
                             "status":"failure",
                             "Error":"{}".format(key)})
+
+    if not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", returned['email']):
+        return jsonify({"message":"Enter a valid email", "status":"failure"})
 
     already_exits = new_user.login_user(returned['email'])
     if already_exits:
