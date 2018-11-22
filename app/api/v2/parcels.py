@@ -43,7 +43,17 @@ def see_all_orders():
 @apiv2.route('/parcels/<int:parcel_id>', methods=['GET'])
 @jwt_required
 def get_order_by_id(parcel_id):
-    pass
+    """Return a single delivery order based on its id"""
+    current_user = get_jwt_identity()
+    parcel = DatabaseOps()
+    parcel.connect_to_db()
+    parcel = parcel.get_delivery_from_db(parcel_id, current_user[0])
+    if parcel:
+        return jsonify({"message":"Here is delivery order {}".format(parcel_id),
+                        "status":"success", "Data":parcel})
+    return jsonify({"message":"Delivery order {} not available".format(parcel_id),
+                    "status":"failure"})
+
 
 @apiv2.route('/users/<int:userid>/parcels', methods=['GET'])
 @jwt_required

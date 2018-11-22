@@ -50,11 +50,21 @@ class DatabaseOps:
                                                                 drop_off, user_id))
         self.cur.execute(query)
         return True
-        
+
     def get_from_db(self, user):
         """retreive all delivery orders of a given user id"""
         query = ('''SELECT * FROM parcel_deliveries WHERE user_id = '{}' '''.format(user))
         self.cur.execute(query)
         parcel_records = self.cur.fetchall()
         return parcel_records
-            
+
+    def get_delivery_from_db(self, parcel, user):
+        """fetch a delivery order by its id"""
+        query = ('''SELECT * FROM parcel_deliveries
+                    where parcel_id = '{}' and user_id = '{}' '''.format(parcel, user))
+        self.cur.execute(query)
+        colnames = [column[0] for column in self.cur.description]
+        parcel = self.cur.fetchall()
+        for this_parcel in parcel:
+            return dict(zip(colnames, this_parcel))
+    
