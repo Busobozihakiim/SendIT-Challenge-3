@@ -1,6 +1,5 @@
 from urllib import parse
 import psycopg2
-from psycopg2 import Error
 
 class DatabaseOps:
     """Contains methods to create a db connection and create some tables"""
@@ -8,7 +7,6 @@ class DatabaseOps:
     def connect_to_db(self):
         """Creates a connection to the database"""
         try:
-            #using parameters to create a connection to the database
             url = parse.urlparse('postgresql://postgres:th3k1ng@localhost:5432/postgres')
             db = "dbname={} user={} password={} host={} ".format(url.path[1:], \
             url.username, url.password, url.hostname)
@@ -16,7 +14,7 @@ class DatabaseOps:
             self.cur = self.conn.cursor()
             self.conn.autocommit = True
             print("Success connected to the database - ")
-        except (Exception, psycopg2.Error) as error:
+        except (Exception, psycopg2.DatabaseError) as error:
             print("Error connecting to the database", error)
 
     def create_table(self):
@@ -46,9 +44,17 @@ class DatabaseOps:
         print("Table created")
 
     def create_parcel(self, name, description, pick_up, drop_off, user_id):
+        """save a delivery order to a database"""
         query = ('''INSERT INTO parcel_deliveries (name, description, pick_up, drop_off, user_id)
                     VALUES ('{}','{}','{}','{}','{}')'''.format(name, description, pick_up,
                                                                 drop_off, user_id))
         self.cur.execute(query)
         return True
         
+    def get_from_db(self, user):
+        """retreive all delivery orders of a given user id"""
+        query = ('''SELECT * FROM parcel_deliveries WHERE user_id = '{}' '''.format(user))
+        self.cur.execute(query)
+        parcel_records = self.cur.fetchall()
+        return parcel_records
+            
