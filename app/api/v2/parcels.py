@@ -24,15 +24,15 @@ def make_a_delivery_order():
             return jsonify({"message":"You are missing {} in your input".format(key),
                             "status":"failure"})
 
-        if 'name' != key and 'pick_up' != key and 'drop_off' != key and 'description' != key:
+        if key != 'name' and key != 'pick_up' and key != 'drop_off' and key != 'description':
             return jsonify({"message":"You've messed up the input",
                             "status":"failure",
                             "Error":"{}".format(key)})
 
 
     user_id = get_jwt_identity()
-    new_order.create_parcel(user_id[0], order['pick_up'],
-                            order['drop_off'], order['name'], order['description'], )
+    new_order.create_parcel(order['name'], order['pick_up'],
+                            order['drop_off'], order['description'], user_id[0])
     return jsonify({"message":"Delivery order created", "status":"success"}), 201
 
 @apiv2.route('/parcels', methods=['GET'])
@@ -45,10 +45,23 @@ def see_all_orders():
 def get_order_by_id(parcel_id):
     pass
 
-@apiv2.route('/users/<string:userid>/parcels', methods=['GET'])
+@apiv2.route('/users/<int:userid>/parcels', methods=['GET'])
 @jwt_required
 def get_all_orders_by_userid(userid):
-    pass
+    """Used to view all the parce; delivery orders by a user id"""
+    current_user = get_jwt_identity()
+    if userid != current_user[0]:
+        return jsonify({"Error":"This is not your userid = {}".format(userid), "status":"failure",
+                        "message":"Access denied, trying to access another users delivery orders"})
+    parcels = DatabaseOps()
+    parcels.connect_to_db()
+    parcels = parcels.get_from_db(current_user[0])
+    print(parcels)
+    if not parcels:
+        return jsonify({"message":"You have not made any delivery orders"})
+    return jsonify({"message":"here is the delivery order of {}".format(userid),
+                    "data":parcels}), 200
+
 
 @apiv2.route('/parcels/<int:parcel_id>/cancel', methods=['PUT'])
 @jwt_required
