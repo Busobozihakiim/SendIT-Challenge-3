@@ -23,6 +23,7 @@ class DatabaseOps:
             '''
             CREATE TABLE IF NOT EXISTS users (
             user_id SERIAL PRIMARY KEY NOT NULL,
+            username VARCHAR(20) NOT NULL,
             email VARCHAR(50) NOT NULL,
             password VARCHAR(20) NOT NULL)
             ''',
