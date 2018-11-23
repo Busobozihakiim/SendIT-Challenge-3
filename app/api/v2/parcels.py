@@ -66,7 +66,6 @@ def get_all_orders_by_userid(userid):
     parcels = DatabaseOps()
     parcels.connect_to_db()
     parcels = parcels.get_from_db(current_user[0])
-    print(parcels)
     if not parcels:
         return jsonify({"message":"You have not made any delivery orders"})
     return jsonify({"message":"here is the delivery order of {}".format(userid),
@@ -76,4 +75,10 @@ def get_all_orders_by_userid(userid):
 @apiv2.route('/parcels/<int:parcel_id>/cancel', methods=['PUT'])
 @jwt_required
 def cancel_delivery_order(parcel_id):
-    pass
+    current_user = get_jwt_identity()
+    parcel = DatabaseOps()
+    parcel.connect_to_db()
+    cancel = parcel.cancel_order(parcel_id, current_user[0])
+    if cancel:
+        return jsonify({"message":"Delivery order cancelled", "status":"success"})
+    return jsonify({"message":"Delivery order doesnt exist", "status":"failure"})
