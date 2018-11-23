@@ -67,4 +67,17 @@ class DatabaseOps:
         parcel = self.cur.fetchall()
         for this_parcel in parcel:
             return dict(zip(colnames, this_parcel))
-    
+
+    def cancel_order(self, parcel, user):
+        """change status to canceled"""
+        exits = ('''SELECT exists (SELECT 1 FROM parcel_deliveries
+                    WHERE parcel_id = '{}' and user_id = '{}' LIMIT 1)'''.format(parcel, user))
+        self.cur.execute(exits)
+        does_it = self.cur.fetchone()
+        if True in does_it:
+            query = ('''UPDATE parcel_deliveries  SET status = 'cancelled'
+                        WHERE parcel_id = '{}' and user_id = '{}' '''.format(parcel, user))
+            self.cur.execute(query)
+            return True
+        return False
+        
